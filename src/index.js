@@ -15,7 +15,7 @@ app.use("/user", userRoute);
 app.use("/quiz", quizRoute);
 
 app.get("/", async (req, res) => {
-    res.send("New Backend for Mock_13");
+    res.send("New Backend for Mock_15");
 });
 
 app.listen(PORT, async () => {
