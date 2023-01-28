@@ -3,7 +3,6 @@ const userRoute = express.Router();
 const jwt = require("jsonwebtoken");
 const userModel = require("../model/user.model");
 
-
 userRoute.get("/", async (req, res) => {
     const user = await userModel.find();
     return res.status(200).send({ message: "Users", desc: "", data: user });
@@ -11,24 +10,28 @@ userRoute.get("/", async (req, res) => {
 
 userRoute.post("/login", async (req, res) => {
     const { name, category, difficulty, queNum, score } = req.body;
-    console.log('name, category, difficulty, queNum, score:', name, category, difficulty, queNum, score)
+    console.log(
+        "name, category, difficulty, queNum, score:",
+        name,
+        category,
+        difficulty,
+        queNum,
+        score
+    );
 
     try {
-        const user = new userModel({
+        let user = new userModel({
             name,
             category,
             difficulty,
             queNum,
             score
-        });
+        })
         await user.save();
 
         let token = jwt.sign(
             {
-                name,
-                category,
-                difficulty,
-                queNum,
+                name, category, difficulty, queNum, score
             },
             "SECRET_user",
             { expiresIn: "4 days" }
@@ -47,24 +50,34 @@ userRoute.post("/login", async (req, res) => {
 
 userRoute.patch("/updatescore", async (req, res) => {
     const { id, name, category, difficulty, queNum, score } = req.body;
-    console.log(' id, name, category, difficulty, queNum, score:', id, name, category, difficulty, queNum, score)
+    console.log(
+        " id, name, category, difficulty, queNum, score:",
+        id,
+        name,
+        category,
+        difficulty,
+        queNum,
+        score
+    );
     // console.log('userFind:', userFind);
     try {
-        await userModel.findByIdAndUpdate({ _id: id }, {
-            name,
-            category,
-            difficulty,
-            queNum,
-            score
-        });
-
+        await userModel.findByIdAndUpdate(
+            { _id: id },
+            {
+                name,
+                category,
+                difficulty,
+                queNum,
+                score,
+            }
+        );
 
         let user = await userModel.find({});
 
         return res.status(200).send({
             message: "Update SuccessFully",
             desc: "",
-            user
+            user,
         });
     } catch (e) {
         return res
