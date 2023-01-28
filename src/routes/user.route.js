@@ -29,9 +29,17 @@ userRoute.post("/login", async (req, res) => {
         })
         await user.save();
 
+        let userId = await userModel.find({
+            name,
+            category,
+            difficulty,
+            queNum,
+            score
+        })
+
         let token = jwt.sign(
             {
-                name, category, difficulty, queNum, score
+                _id: userId, name, category, difficulty, queNum, score
             },
             "SECRET_user",
             { expiresIn: "4 days" }
