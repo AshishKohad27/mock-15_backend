@@ -5,6 +5,7 @@ const userSchema = new Schema({
     category: { type: String, require: true },
     difficulty: { type: String, require: true },
     queNum: { type: Number, require: true },
+    score: { type: Number }
 });
 
 const userModel = model("user", userSchema);

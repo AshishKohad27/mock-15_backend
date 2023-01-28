@@ -1,6 +1,5 @@
 const express = require("express");
 const userRoute = express.Router();
-const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
 const userModel = require("../model/user.model");
 
@@ -8,78 +7,18 @@ userRoute.get("/", async (req, res) => {
     const user = await userModel.find();
     return res.status(200).send({ message: "Users", desc: "", data: user });
 });
-userRoute.post("/getprofile", async (req, res) => {
-    const { token } = req.body;
-    console.log("token:", token);
-    try {
-        if (!token) {
-            return res.status(401).send({
-                data: [],
-                message: "Unauthorized Person",
-                flag: false,
-                desc: "",
-            });
-        } else if (token) {
-            const verification = jwt.decode(token, "SECRET_user");
-            console.log("verification:", verification);
-            return res
-                .status(200)
-                .send({ message: "usered Users", desc: "", user: verification });
-        }
-    } catch (error) {
-        console.log("error:", error);
-        return res.status(403).send({
-            data: [],
-            message: "Error Occur",
-            flag: false,
-            desc: error.message,
-        });
-    }
-});
-
-userRoute.post("/signup", async (req, res) => {
-    const { name, email, password } = req.body;
-    const userCheck = await userModel.find({ email });
-    // console.log('userCheck:', userCheck)
-    const hash = await argon2.hash(password);
-    // console.log('hash:', hash);
-    try {
-        if (userCheck.length !== 0) {
-            return res.status(201).send({
-                message: "User with this email id already have an account",
-                desc: "",
-                user: userCheck,
-            });
-        }
-        if (email.includes("@masaischool.com")) {
-            let user = new userModel({ name, email, password: hash, role: "admin" });
-            await user.save();
-            return res
-                .status(200)
-                .send({ message: "Admin Signup SuccessFully", desc: "", user });
-        } else {
-            let user = new userModel({ name, email, password: hash });
-            await user.save();
-            return res
-                .status(200)
-                .send({ message: "User Signup SuccessFully", desc: "", user });
-        }
-    } catch (e) {
-        return res
-            .status(401)
-            .send({ message: "Error...", desc: e.message, user: [] });
-    }
-});
 
 userRoute.post("/login", async (req, res) => {
-    const { name, category, difficulty, questionsNumber } = req.body;
-    // console.log('userFind:', userFind);
+    const { name, category, difficulty, queNum, score } = req.body;
+    console.log('name, category, difficulty, queNum, score:', name, category, difficulty, queNum, score)
+
     try {
         const user = new userModel({
             name,
             category,
             difficulty,
-            questionsNumber,
+            queNum,
+            score
         });
         await user.save();
 
@@ -88,7 +27,7 @@ userRoute.post("/login", async (req, res) => {
                 name,
                 category,
                 difficulty,
-                questionsNumber,
+                queNum,
             },
             "SECRET_user",
             { expiresIn: "4 days" }
@@ -97,6 +36,34 @@ userRoute.post("/login", async (req, res) => {
             message: "Login SuccessFully",
             desc: "",
             token,
+        });
+    } catch (e) {
+        return res
+            .status(401)
+            .send({ message: "Error...", desc: e.message, user: [] });
+    }
+});
+
+userRoute.patch("/updatescore", async (req, res) => {
+    const { id, name, category, difficulty, queNum, score } = req.body;
+    console.log(' id, name, category, difficulty, queNum, score:', id, name, category, difficulty, queNum, score)
+    // console.log('userFind:', userFind);
+    try {
+        await userModel.findByIdAndUpdate({ _id: id }, {
+            name,
+            category,
+            difficulty,
+            queNum,
+            score
+        });
+
+
+        let user = await userModel.find({});
+
+        return res.status(200).send({
+            message: "Update SuccessFully",
+            desc: "",
+            user
         });
     } catch (e) {
         return res
