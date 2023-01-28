@@ -3,6 +3,7 @@ const userRoute = express.Router();
 const jwt = require("jsonwebtoken");
 const userModel = require("../model/user.model");
 
+
 userRoute.get("/", async (req, res) => {
     const user = await userModel.find();
     return res.status(200).send({ message: "Users", desc: "", data: user });
